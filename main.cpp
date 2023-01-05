@@ -5,10 +5,22 @@
 #include <windows.h>
 #include <math.h>
 #include<iostream>
+#define fps 10
+#define up 1
+#define Down -1
+short sdirection = up ;
 
 float xRotated = 90.0, yRotated = 0.0, zRotated = 0.0;
+float xtranslate=0 ;
+float ytranslate=0 ;
+float ztranslate=0 ;
+bool gameOver =false;
+void Left_Keyboard(unsigned char  ,int ,int );
+void Reght_keyboard(int  ,int ,int );
+float posX=0 ,posZ =0 ,posY =0;
+float posX2=0 ,posZ2 =0 ,posY2 =0;
 
-//------------------------------  reshapeFunc  ---------------------------------
+//------------------------------  reshapeFunc  --------------------------------
 
 void reshapeFunc (int w, int h)
 {
@@ -47,23 +59,24 @@ void Table()
     glPopMatrix();
 //right player
     glPushMatrix();
-    glTranslatef(4.5,0.5,0);
+    glTranslatef(posX+4.5,posY+0.5,posZ+0);
     glRotatef(90,1,0,0);
     glScalef(0.2,1,0.2);//for make the table
     glutSolidCube(1.0);
     glPopMatrix();
      //left player
     glPushMatrix();
-    glTranslatef(-4.5,0.5,0);
+    glTranslatef(posX2+-4.5,posY2+0.5,posZ2+0);
     glRotatef(90,1,0,0);
     glScalef(0.2,1,0.2);//for make the table
     glutSolidCube(1.0);
     glPopMatrix();
 //boll
     glPushMatrix();
+    glTranslatef(xtranslate,0,ztranslate);
     glutSolidSphere (0.3, 30, 30);
     glPopMatrix();
-
+//---------------------------------------------->
     glPushMatrix();
     glTranslatef(0,7,0);
    glutSolidSphere (0.5, 30, 30);
@@ -85,12 +98,16 @@ void Table()
 void display (void)
 {
      GLfloat Pos[]= {0,1,0,1};
-    GLfloat Col[]= {1,0,0,1};
+   GLfloat Col[]= {1,0,0,1};
     glClear (GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glLoadIdentity ();
     glLightfv(GL_LIGHT0,GL_POSITION,Pos);
    glLightfv(GL_LIGHT0,GL_POSITION,Col);
        Table();
+       if (gameOver){
+        MessageBox(NULL,"Your Score : ","Game over",0);
+        exit(0);
+       }
 
     glutSwapBuffers();
 }
@@ -139,7 +156,34 @@ void texture (void)
 
 
 }
+int state = 0 ;
+void timer(int ){
+    glutPostRedisplay();
+    glutTimerFunc(1000/ fps ,timer,0);
+//	if(ztranslate>-2.5){
+//
+//        ztranslate+=-0.2;
+//    }
+//	else{
+//	    ztranslate+= 0.2;
+//	    xtranslate+= 0.2;
+//
+//	}
+switch(state){
+   case 0:
+ if(ztranslate>-2.5)
+    ztranslate+=-0.2;
 
+ else{
+    state=0;
+    break;
+ }
+  case 1:
+    ztranslate+= 0.2;
+    xtranslate+= 0.5;
+     state=1;
+}
+}
 
 
 //----------------------------------  main  ------------------------------------
@@ -157,11 +201,48 @@ int main (int argc, char **argv)
     glRotatef(1,1,0,0);
     glutDisplayFunc (display);
     glutReshapeFunc (reshapeFunc);
+    glutTimerFunc(1000,timer,0);
+    glutKeyboardFunc(Left_Keyboard);
+    glutSpecialFunc(Reght_keyboard);
+
 //    glutIdleFunc    (idleFunc);
    glClearColor(0,1,1,1); //COLOR FOR THE PACKGROUND
     texture(); // Lighting and textures
 
 
     glutMainLoop();
+}
+void Left_Keyboard(unsigned char key ,int ,int ){
+
+    switch(key){
+
+   case 119 : //w
+     //  sdirection =up;
+     if(posZ2>-2)
+     posZ2 = posZ2-0.5;
+       break;
+   case 115 ://s
+       //sdirection = Down;
+       if(posZ2<2.5)
+      posZ2 = posZ2+0.5;
+       break;
+    }
+
+}
+void Reght_keyboard(int key ,int ,int ){
+
+    switch(key){
+   case  GLUT_KEY_UP :
+     //  sdirection =up;
+     if(posZ>-2)
+     posZ = posZ-0.5;
+       break;
+   case GLUT_KEY_DOWN:
+       //sdirection = Down;
+      if(posZ<2.5)
+      posZ= posZ+0.5;
+       break;
+       }
+
 }
 
